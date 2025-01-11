@@ -141,6 +141,7 @@ export default class Room extends Component {
     );
   }
 
+
   render() {
     if (this.state.showSettings) {
       return this.renderSettings();
