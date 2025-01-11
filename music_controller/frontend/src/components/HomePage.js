@@ -30,7 +30,6 @@ export default class HomePage extends Component {
           roomCode: data.code,
         });
       });
-
   }
 
   renderHomePage() {
