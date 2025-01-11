@@ -30,6 +30,7 @@ export default class CreateRoomPage extends Component {
     this.setState({
       votesToSkip: e.target.value,
     });
+
   }
 
   handleGuestCanPauseChange(e) {
@@ -49,7 +50,7 @@ export default class CreateRoomPage extends Component {
     };
     fetch("/api/create-room", requestOptions)
       .then((response) => response.json())
-      .then((data) => console.log(data));
+      .then((data) => this.props.history.push("/room/" + data.code));
   }
 
   render() {

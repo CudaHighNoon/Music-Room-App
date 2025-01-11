@@ -27,6 +27,7 @@ export default class HomePage extends Component {
           <Route path="/room/:roomCode" component={Room} />
         </Switch>
       </Router>
+      
     );
   }
 }

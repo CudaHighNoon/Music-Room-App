@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkfrontend=self.webpackChunkfrontend||[]).push([[628],{6628:(e,n,t)=>{t.r(n),t.d(n,{default:()=>s});var r=t(8431);t(1098),t(3512);class s extends r.Component{constructor(e){super(e),this.state={}}render(){return r.createElement("h1",null,"RoomJoinPage")}}}}]);
