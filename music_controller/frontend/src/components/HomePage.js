@@ -18,7 +18,7 @@ export default class HomePage extends Component {
     super(props);
     this.state={
       roomCode:null,
-
+    
     };
     this.clearRoomCode = this.clearRoomCode.bind(this);
   }

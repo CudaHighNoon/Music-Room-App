@@ -13,8 +13,7 @@ def get_user_tokens(session_id):
 
     if user_tokens.exists():
         return user_tokens[0]
-    else:
-        return None
+    return None
 
 
 def update_or_create_user_tokens(session_id, access_token, token_type, expires_in, refresh_token):
@@ -66,18 +65,23 @@ def refresh_spotify_token(session_id):
 
 def execute_spotify_api_request(session_id, endpoint, post_=False, put_=False):
     tokens = get_user_tokens(session_id)
-    headers = {'Content-Type': 'application/json',
-               'Authorization': "Bearer " + tokens.access_token}
-
+    if not tokens:
+        
+        return {'error': 'User not authenticated'}
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer " + tokens.access_token
+    }
     if post_:
-        post(BASE_URL + endpoint, headers=headers)
+        response = post(BASE_URL + endpoint, headers=headers)
     elif put_:
-        put(BASE_URL + endpoint, headers=headers)
-
-    response = get(BASE_URL + endpoint, {}, headers=headers)
+        response = put(BASE_URL + endpoint, headers=headers)
+    else:
+        response = get(BASE_URL + endpoint, headers=headers)
     try:
         return response.json()
     except:
+        
         return {'Error': 'Issue with request'}
 
 
@@ -90,5 +94,5 @@ def pause_song(session_id):
 
 def skip_song(session_id):
     return execute_spotify_api_request(session_id,"player/next",post_=True)
-
+    
     

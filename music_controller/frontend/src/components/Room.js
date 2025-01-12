@@ -13,7 +13,10 @@ export default class Room extends Component {
       showSettings: false,
       spotifyAuthenticated: false,
       song: {},
+      names:[],
+      
     };
+    this.userName=this.props.match.params.userName;
     this.roomCode = this.props.match.params.roomCode;
     this.leaveButtonPressed = this.leaveButtonPressed.bind(this);
     this.updateShowSettings = this.updateShowSettings.bind(this);
@@ -23,10 +26,18 @@ export default class Room extends Component {
     this.authenticateSpotify = this.authenticateSpotify.bind(this);
     this.getCurrentSong = this.getCurrentSong.bind(this);
     this.getRoomDetails();
+    if (this.state.isHost) {
+      this.authenticateSpotify();
+    }
   }
 
   componentDidMount() {
-    this.interval = setInterval(this.getCurrentSong, 1000);
+    this.interval = setInterval(()=>{
+      this.getCurrentSong()
+      this.getRoomDetails()
+      console.log(this.userName)
+    }, 1000);
+
   }
 
   componentWillUnmount() {
@@ -47,10 +58,12 @@ export default class Room extends Component {
           votesToSkip: data.votes_to_skip,
           guestCanPause: data.guest_can_pause,
           isHost: data.is_host,
+          names:data.names
         });
-        if (this.state.isHost) {
-          this.authenticateSpotify();
-        }
+       console.log(this.state.names)
+       if (this.state.isHost) {
+        this.authenticateSpotify();
+      }
       });
   }
 
@@ -59,7 +72,7 @@ export default class Room extends Component {
       .then((response) => response.json())
       .then((data) => {
         this.setState({ spotifyAuthenticated: data.status });
-        console.log(data.status);
+      
         if (!data.status) {
           fetch("/spotify/get-auth-url")
             .then((response) => response.json())
@@ -74,14 +87,15 @@ export default class Room extends Component {
     fetch("/spotify/current-song")
       .then((response) => {
         if (!response.ok) {
-          return {};
+         return{}
+         
         } else {
           return response.json();
         }
       })
       .then((data) => {
         this.setState({ song: data });
-        //console.log(data);
+        //console.log(this.state.is_playing);
       });
   }
 

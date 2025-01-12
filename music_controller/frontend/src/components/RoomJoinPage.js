@@ -8,6 +8,7 @@ export default class RoomJoinPage extends Component {
     this.state = {
       roomCode: "",
       error: "",
+      userName:"Unknown Entity"
     };
 
     this.handleTextFieldChange = this.handleTextFieldChange.bind(this);
@@ -26,6 +27,7 @@ export default class RoomJoinPage extends Component {
     headers:{"content-type":"application/json"},
     body: JSON.stringify({
       code: this.state.roomCode,
+      names: this.state.userName,
     }),
 
 
@@ -33,6 +35,22 @@ export default class RoomJoinPage extends Component {
    fetch("/api/join-room", requestOptions).then((response) => {
 
     if(response.ok){
+
+      const requestOptions2 = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: this.state.userName,
+        }),
+      };
+      fetch("/api/add-user", requestOptions2)
+            .then((response) => {
+              if (response.ok) {
+                
+              } else {
+                this.setState({ error: "Name is Taken" });
+              }
+            });
       this.props.history.push(`/room/${this.state.roomCode}`);
     }else{
       this.setState({error: "Room not found."});
@@ -58,8 +76,21 @@ export default class RoomJoinPage extends Component {
             helperText={this.state.error}
             variant="outlined"
             onChange={this.handleTextFieldChange}
+            default={this.state.roomCode}
           />
         </Grid>
+        
+        <Grid item xs={12} align="center" padding="5px">
+        <TextField
+          label="Name"
+          placeholder="Enter a Name"
+          value={this.state.userName}
+          variant="outlined"
+          onChange={(e)=>{  this.setState({
+            userName: e.target.value,
+          });}}
+        />
+      </Grid>
         <Grid item xs={12} align="center">
           <Button
             variant="contained"

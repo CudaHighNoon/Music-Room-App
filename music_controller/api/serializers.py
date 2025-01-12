@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Room
+from .models import Room,UserAttributes
 class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model=Room
@@ -15,3 +15,7 @@ class UpdateRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model=Room
         fields=('guest_can_pause','votes_to_skip','code')
+class UserDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=UserAttributes
+        fields=['name']
