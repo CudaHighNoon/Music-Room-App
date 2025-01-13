@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Grid, Button, Typography } from "@material-ui/core";
+import { Grid, Button, Typography, Drawer, List, ListItem, ListItemText,Divider } from "@material-ui/core";
 import CreateRoomPage from "./CreateRoomPage";
 import MusicPlayer from "./MusicPlayer";
 
@@ -25,6 +25,7 @@ export default class Room extends Component {
     this.getRoomDetails = this.getRoomDetails.bind(this);
     this.authenticateSpotify = this.authenticateSpotify.bind(this);
     this.getCurrentSong = this.getCurrentSong.bind(this);
+    this.renderSidebar=this.renderSidebar.bind(this);
     this.getRoomDetails();
     if (this.state.isHost) {
       this.authenticateSpotify();
@@ -128,6 +129,7 @@ export default class Room extends Component {
             updateCallback={this.getRoomDetails}
           />
         </Grid>
+        
         <Grid item xs={12} align="center">
           <Button
             variant="contained"
@@ -151,25 +153,54 @@ export default class Room extends Component {
         >
           Settings
         </Button>
+        
       </Grid>
     );
   }
+  
 
+  renderSidebar() {
+    return (
+      <Drawer variant="permanent" anchor="left">
+        <div style={{ width: 250 ,height:500}}>
+          <Typography variant="h6" align="center" style={{ padding: "16px 0" }}>
+            Group Participants
+          </Typography>
+          <Divider />
+          <List>
+            {this.state.names.map((name, index) => (
+              <ListItem button key={index}>
+                <ListItemText primary={name} />
+              </ListItem>
+            ))}
+          </List>
+        </div>
+      </Drawer>
+    );
+  }
 
   render() {
     if (this.state.showSettings) {
       return this.renderSettings();
     }
+  
     return (
-      <Grid container spacing={1}>
-        <Grid item xs={12} align="center">
-          <Typography variant="h4" component="h4">
-            Code: {this.roomCode}
-          </Typography>
-        </Grid>
-        <MusicPlayer {...this.state.song} />
-        {this.state.isHost ? this.renderSettingsButton() : null}
-        <Grid item xs={12} align="center">
+      <div style={{ display: "fixed" }}>
+        
+        {this.renderSidebar()}
+        
+        <div style={{ flexGrow: 1 ,paddingLeft:500}}>
+          <Grid container spacing={1}>
+            <Grid item xs={12} align="center">
+              <Typography component="h4" variant="h4">
+                Room Code: {this.roomCode}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <MusicPlayer {...this.state.song} />
+            </Grid>
+            {this.state.isHost ? this.renderSettingsButton() : null}
+            <Grid item xs={12} align="center">
           <Button
             variant="contained"
             color="secondary"
@@ -178,7 +209,9 @@ export default class Room extends Component {
             Leave Room
           </Button>
         </Grid>
-      </Grid>
+          </Grid>
+        </div>
+      </div>
     );
   }
 }

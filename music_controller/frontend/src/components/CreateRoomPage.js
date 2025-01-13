@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Grid, Typography, TextField, FormControl, FormHelperText, Button } from "@material-ui/core";
-
+import {Link} from "react-router-dom";
 class CreateRoomPage extends Component {
   constructor(props) {
     super(props);
@@ -94,6 +94,11 @@ class CreateRoomPage extends Component {
             Create A Room
           </Button>
         </Grid>
+        <Grid item xs={12} align="center">
+        <Button variant="contained" color="secondary" to={"/"} component={Link}>
+      Back
+    </Button>
+    </Grid>
       </Grid>
     );
   }

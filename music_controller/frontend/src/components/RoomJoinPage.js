@@ -46,12 +46,12 @@ export default class RoomJoinPage extends Component {
       fetch("/api/add-user", requestOptions2)
             .then((response) => {
               if (response.ok) {
-                
+                print(response)
+                this.props.history.push(`/room/${this.state.roomCode}`);
               } else {
                 this.setState({ error: "Name is Taken" });
               }
             });
-      this.props.history.push(`/room/${this.state.roomCode}`);
     }else{
       this.setState({error: "Room not found."});
     }
