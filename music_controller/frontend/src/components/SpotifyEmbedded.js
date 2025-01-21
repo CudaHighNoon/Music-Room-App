@@ -1,23 +1,47 @@
 // SpotifyEmbedded.js
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { Typography } from "@material-ui/core";
 
-export default function SpotifyEmbedded() {
+export default function SpotifyEmbedded({ currentSong }) {
+  const [lyrics, setLyrics] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (currentSong && currentSong.title && currentSong.artist) {
+      // Fetch lyrics from the backend for the current song
+      fetch(
+        `/api/lyrics?title=${encodeURIComponent(
+          currentSong.title
+        )}&artist=${encodeURIComponent(currentSong.artist)}`
+      )
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Lyrics not found");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setLyrics(data.lyrics);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error(error);
+          setLyrics("Lyrics not available.");
+          setLoading(false);
+        });
+    }
+  }, [currentSong]);
+
   return (
     <div style={styles.embeddedContainer}>
-    
-      {/* Example: an embedded playlist or track selection */}
-      <iframe
-        src="https://open.spotify.com/embed/"
-        width="100%"
-        height="380"
-        frameBorder="0"
-        allow="encrypted-media"
-        style={styles.iframeStyle}
-        title="Spotify Embedded"
-      />
+      <Typography variant="h6" style={styles.header}>Lyrics</Typography>
+      {loading ? (
+        <p style={styles.info}>Loading lyrics...</p>
+      ) : (
+        <pre style={styles.lyrics}>{lyrics}</pre>
+      )}
       <p style={styles.info}>
-        Use this embed to pick songs. Audio does <strong>not</strong> come 
-        from here, only from WebPlayback in your browser.
+        Lyrics provided for the current song.
       </p>
     </div>
   );
@@ -34,10 +58,11 @@ const styles = {
     marginTop: 0,
     marginBottom: "0.5rem",
   },
-  iframeStyle: {
-    border: "none",
-    borderRadius: "8px",
-    marginBottom: "1rem",
+  lyrics: {
+    whiteSpace: "pre-wrap",
+    fontSize: "1rem",
+    lineHeight: "1.5",
+    color: "#fff",
   },
   info: {
     fontSize: "0.9rem",

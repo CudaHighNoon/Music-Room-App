@@ -10,4 +10,5 @@ urlpatterns = [
     path('play',PlaySong.as_view()),
     path('skip',SkipSong.as_view()),
     path('get-playback-token', GetPlaybackToken.as_view()),
+    path('api/lyrics', get_lyrics, name='get-lyrics'),
     ]

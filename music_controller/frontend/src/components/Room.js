@@ -27,11 +27,11 @@ export default class Room extends Component {
       tempGuestCanPause: false,
       isHost: false,
       spotifyAuthenticated: false,
-      song: {},       // data from getCurrentSong() 
+      song: {},
       names: [],
       errorMsg: "",
       successMsg: "",
-      isInitialized: false, // track first load
+      isInitialized: false,
     };
 
     this.roomCode = this.props.match.params.roomCode;
@@ -87,12 +87,13 @@ export default class Room extends Component {
             newState.isInitialized = true;
           }
           return newState;
+        }, () => {
+          // Debugging output for isHost state
+          console.log("isHost:", this.state.isHost);
         });
 
-        // If user is host, check Spotify
-        if (data.is_host) {
-          this.authenticateSpotify();
-        }
+        // Always attempt Spotify authentication after fetching room details
+        this.authenticateSpotify();
       });
   }
 
@@ -122,7 +123,7 @@ export default class Room extends Component {
         return response.json();
       })
       .then((data) => {
-        this.setState({ song: data }); // e.g. { title, artist, time, duration, is_playing }
+        this.setState({ song: data });
       });
   }
 
@@ -188,7 +189,6 @@ export default class Room extends Component {
           <Typography variant="h6" align="center" style={styles.participantsTitle}>
             Room Members
           </Typography>
-
           <Divider style={styles.divider} />
           <List>
             {this.state.names.map((name, index) => (
@@ -206,12 +206,10 @@ export default class Room extends Component {
     return (
       <div style={styles.pageWrapper}>
         {this.renderSidebar()}
-
         <div style={styles.mainContent}>
           <Typography style={styles.roomTitle}>
             Music Room: {this.roomCode}
           </Typography>
-
           <div style={styles.layoutGrid}>
             {/* LEFT COLUMN => Song Box + Settings */}
             <div style={styles.leftColumn}>
@@ -239,10 +237,11 @@ export default class Room extends Component {
               </div>
 
               {/* Room Settings (host only) */}
-              {this.state.isHost && (
+              {this.state.isHost ? (
                 <div style={styles.settingsBox}>
-                  <Typography style={styles.settingsTitle}>Room Settings</Typography>
-
+                  <Typography style={styles.settingsTitle}>
+                    Room Settings
+                  </Typography>
                   <div style={styles.settingsRow}>
                     {/* Votes to skip w/ arrow up/down */}
                     <div style={styles.votesColumn}>
@@ -316,39 +315,39 @@ export default class Room extends Component {
                     </Typography>
                   )}
                 </div>
+              ) : (
+                // Debug information when not host
+                <Typography style={{ color: "#f00" }}>
+                  Not host - Room settings are hidden.
+                </Typography>
               )}
             </div>
 
             {/* RIGHT COLUMN => WebPlayback + Embedded */}
-            <div style={styles.rightColumn}>
-              {this.state.spotifyAuthenticated && (
-                <div style={styles.webPlaybackBox}>
-                  <Typography variant="h6" style={{ marginBottom: "0.5rem" }}>
-                    Spotify Web Playback
-                  </Typography>
-                  {/**
-                   * Pass entire 'song' object so WebPlayback
-                   * can sync position + play/pause
-                   */}
-                  <WebPlayback
-                    currentSong={this.state.song}
-                    isHost={this.state.isHost}
-                  />
-                </div>
-              )}
+                  <div style={styles.rightColumn}>
+        {this.state.spotifyAuthenticated && (
+          <div style={styles.webPlaybackBox}>
+            <Typography variant="h6" style={{ marginBottom: "0.5rem" }}>
+              Spotify Web Playback
+            </Typography>
+            <WebPlayback
+              currentSong={this.state.song}
+              isHost={this.state.isHost}
+            />
+          </div>
+        )}
 
-              {this.state.isHost && (
-                <div style={styles.spotifyEmbeddedBox}>
-                  <Typography variant="h6" style={{ marginBottom: "0.5rem" }}>
-                    Spotify Embedded
-                  </Typography>
-                  <SpotifyEmbedded />
-                </div>
-              )}
+        <div style={styles.spotifyEmbeddedBox}>
+          <Typography variant="h6" style={{ marginBottom: "0.5rem" }}>
+            Lyrics
+          </Typography>
+          <SpotifyEmbedded currentSong={this.state.song} />
+        </div>
+      </div>
             </div>
           </div>
         </div>
-      </div>
+      
     );
   }
 }
@@ -361,6 +360,7 @@ const styles = {
     backgroundColor: "#000",
     fontFamily: "Nunito, sans-serif",
     color: "#fff",
+    overflow: "visible", // Ensure children aren't clipped
   },
   drawerContent: {
     width: 250,
@@ -380,7 +380,7 @@ const styles = {
     color: "#fff",
   },
   mainContent: {
-    marginLeft: 250, // offset for drawer
+    marginLeft: 250,
     flexGrow: 1,
     padding: "2rem",
   },
@@ -399,6 +399,7 @@ const styles = {
     flexDirection: "column",
     gap: "1rem",
     flex: "1 1 50%",
+    alignItems: "stretch", // Ensure children can expand
   },
   rightColumn: {
     display: "flex",
@@ -422,13 +423,17 @@ const styles = {
     backgroundColor: "#1f1f1f",
     borderRadius: "8px",
     padding: "1.5rem",
-    animation: "slideInSettings 0.8s ease-out forwards",
-    opacity: 0,
+    color: "#fff", 
+    minHeight: "50px",  // Ensure settingsBox has height
+    minWidth: "200px",  // Ensure settingsBox has width
+    position: "relative",
+    zIndex: 10,
   },
   settingsTitle: {
     fontSize: "1.2rem",
     fontWeight: "bold",
     marginBottom: "1.5rem",
+    color: "#fff",
   },
   settingsRow: {
     display: "flex",
@@ -495,7 +500,6 @@ const styles = {
     color: "green",
     marginTop: "0.5rem",
   },
-
   webPlaybackBox: {
     backgroundColor: "#1f1f1f",
     borderRadius: "8px",

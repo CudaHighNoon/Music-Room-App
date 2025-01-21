@@ -65,6 +65,38 @@ export default class HomePage extends Component {
               color: #bbb;
               transition: color 0.2s ease-out;
             }
+
+            /* Media query for smaller screens */
+            @media (max-width: 768px) {
+              .textSide, .imageSide {
+                animation: none; /* Disable animations on small screens for performance */
+              }
+              .textSide {
+                max-width: 90%;
+                margin-bottom: 2rem;
+              }
+              .mainTitle {
+                font-size: 2.5rem;
+              }
+              .description {
+                font-size: 1rem;
+              }
+              .laptopImage {
+                width: 90%;
+              }
+              .circleImage {
+                width: 200px;
+                left: -100px;
+              }
+              .heroContainer {
+                flex-direction: column;
+                align-items: center;
+              }
+              .imageSide {
+                margin-left: 0;
+                margin-bottom: 2rem;
+              }
+            }
           `}
         </style>
 
@@ -91,8 +123,8 @@ export default class HomePage extends Component {
 
           {/* HERO SECTION */}
           <div style={styles.heroContainer}>
-            {/* LEFT TEXT SIDE (slides in from left) */}
-            <div style={styles.textSide}>
+            {/* LEFT TEXT SIDE */}
+            <div style={styles.textSide} className="textSide">
               <Typography variant="body2" style={styles.tagline}>
                 Share your Music with Others
               </Typography>
@@ -128,9 +160,8 @@ export default class HomePage extends Component {
               </div>
             </div>
 
-            {/* RIGHT IMAGE SIDE (slides in from right) */}
-            <div style={styles.imageSide}>
-              {/* Circle now to the LEFT of the laptop */}
+            {/* RIGHT IMAGE SIDE */}
+            <div style={styles.imageSide} className="imageSide">
               <img
                 src="../../static/images/circle.png"
                 alt="Colorful Circle"
@@ -201,14 +232,16 @@ const styles = {
   },
   navbar: {
     display: "flex",
-    padding: "1rem 2rem",
+    padding: "1rem 2%",
   },
   navItems: {
     display: "flex",
     alignItems: "center",
+    flexWrap: "wrap",
   },
   logoImage: {
-    width: "100px",
+    width: "8vw", // relative size
+    maxWidth: "100px",
     marginRight: "0.5rem",
   },
   navBrand: {
@@ -233,38 +266,33 @@ const styles = {
     flexWrap: "wrap",
     padding: "3rem 5%",
     boxSizing: "border-box",
+    height:"30%"
   },
-
-  // TEXT SIDE
   textSide: {
     maxWidth: "550px",
-    marginBottom: "30rem",
+    marginBottom: "2rem", // reduced bottom margin for flexibility
     animation: "slideInLeft 1s ease-out forwards",
   },
   tagline: {
-    fontSize: "1.4rem", // bigger tagline
+    fontSize: "1.4rem",
     color: "#ccc",
     marginBottom: "0.8rem",
   },
   mainTitle: {
     fontWeight: "bold",
     marginBottom: "1.8rem",
-    fontSize: "3.4rem", // bigger main title
+    fontSize: "3.4rem",
   },
   description: {
     marginBottom: "3rem",
-    fontSize: "1.4rem", // bigger body text
+    fontSize: "1.4rem",
     lineHeight: 1.6,
   },
-
-  // Vertical stack for buttons
   buttonColumn: {
     display: "flex",
     flexDirection: "column",
     gap: "1.5rem",
   },
-
-  // CREATE / JOIN gradient buttons
   createButton: {
     background: "linear-gradient(to right, #3B82F6, #6366F1)",
     color: "#fff",
@@ -274,6 +302,7 @@ const styles = {
     padding: "0.75rem 1.5rem",
     textTransform: "none",
     boxShadow: "none",
+    width: "100%",
   },
   joinButton: {
     background: "linear-gradient(to right, #ec4899, #f43f5e)",
@@ -284,22 +313,20 @@ const styles = {
     padding: "0.75rem 1.5rem",
     textTransform: "none",
     boxShadow: "none",
+    width: "100%",
   },
-
-  // IMAGE SIDE
   imageSide: {
     position: "relative",
     minWidth: "300px",
-    marginBottom: "20rem",
+    marginBottom: "2rem",
     textAlign: "center",
     flexShrink: 0,
-    marginLeft:"15%",
     animation: "slideInRight 1s ease-out forwards",
   },
   circleImage: {
-    // Move circle to the left side
     position: "absolute",
-    width: "450px",
+    width: "25vw",
+    maxWidth: "450px",
     left: "-140px",
     top: "0px",
     zIndex: 1,
@@ -307,10 +334,9 @@ const styles = {
   laptopImage: {
     position: "relative",
     zIndex: 2,
-    width: "700px",
+    width: "60vw",
+    maxWidth: "700px",
   },
-
-  // BOTTOM CIRCLE
   bottomCircle: {
     position: "absolute",
     left: "-100px",

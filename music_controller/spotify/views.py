@@ -11,6 +11,8 @@ from .util import (is_spotify_authenticated, update_or_create_user_tokens,
 from api.models import Room
 from .models import Vote
 
+import requests
+
 load_dotenv()
 class AuthURL(APIView):
     def get(self, request, format=None):
@@ -188,3 +190,15 @@ class GetPlaybackToken(APIView):
             return Response({'error': 'User not authenticated with Spotify'}, status=status.HTTP_403_FORBIDDEN)
         
         return Response({'access_token': tokens.access_token}, status=status.HTTP_200_OK)
+def get_lyrics(request):
+    title = request.query_params.get('title')
+    artist = request.query_params.get('artist')
+    
+    if title and artist:
+        # Using Lyrics.ovh API as an example
+        response = requests.get(f"https://api.lyrics.ovh/v1/{artist}/{title}")
+        if response.ok:
+            data = response.json()
+            return Response({"lyrics": data.get("lyrics", "Lyrics not found.")})
+    
+    return Response({"lyrics": "Lyrics not available."}, status=status.HTTP_404_NOT_FOUND)
