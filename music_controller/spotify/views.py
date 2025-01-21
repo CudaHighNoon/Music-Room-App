@@ -2,14 +2,16 @@ from django.shortcuts import render, redirect
 from requests import Request, post
 from rest_framework.views import APIView
 from rest_framework import status
+import os
 from rest_framework.response import Response
-from .credentials import REDIRECT_URI, CLIENT_ID, CLIENT_SECRET
+from dotenv import load_dotenv,dotenv_values 
 from .util import (is_spotify_authenticated, update_or_create_user_tokens,
                    get_user_tokens, refresh_spotify_token,
                    pause_song, play_song, skip_song, execute_spotify_api_request)
 from api.models import Room
 from .models import Vote
 
+load_dotenv()
 class AuthURL(APIView):
     def get(self, request, format=None):
         # Include 'streaming' so that the user can use Web Playback
@@ -18,8 +20,8 @@ class AuthURL(APIView):
         url = Request('GET', 'https://accounts.spotify.com/authorize', params={
             'scope': scopes,
             'response_type': 'code',
-            'redirect_uri': REDIRECT_URI,
-            'client_id': CLIENT_ID
+            'redirect_uri': os.getenv("REDIRECT_URI"),
+            'client_id':  os.getenv("CLIENT_ID")
         }).prepare().url
 
         return Response({'url': url}, status=status.HTTP_200_OK)
@@ -32,9 +34,9 @@ def spotify_callback(request, format=None):
     response = post('https://accounts.spotify.com/api/token', data={
         'grant_type': 'authorization_code',
         'code': code,
-        'redirect_uri': REDIRECT_URI,
-        'client_id': CLIENT_ID,
-        'client_secret': CLIENT_SECRET
+        'redirect_uri': os.getenv("REDIRECT_URI"),
+        'client_id': os.getenv("CLIENT_ID"),
+        'client_secret':os.getenv("CLIENT_SECRET")
     }).json()
 
     access_token = response.get('access_token')
