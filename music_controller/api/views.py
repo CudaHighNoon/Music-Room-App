@@ -100,6 +100,7 @@ class UserInRoom(APIView):
        data={
            'code':self.request.session.get('room_code')
        }
+       print(data)
        return JsonResponse(data, status=status.HTTP_200_OK)
     
 class LeaveRoom(APIView):
