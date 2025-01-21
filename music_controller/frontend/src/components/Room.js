@@ -28,7 +28,7 @@ export default class Room extends Component {
       names: [],
       errorMsg: "",
       successMsg: "",
-      isInitialized: false,   // track first load
+      isInitialized: false, // track first load
     };
 
     this.roomCode = this.props.match.params.roomCode;
@@ -39,6 +39,7 @@ export default class Room extends Component {
     this.getRoomDetails = this.getRoomDetails.bind(this);
     this.authenticateSpotify = this.authenticateSpotify.bind(this);
     this.getCurrentSong = this.getCurrentSong.bind(this);
+
     this.handleUpdateButtonPressed = this.handleUpdateButtonPressed.bind(this);
     this.handleTempGuestCanPauseChange = this.handleTempGuestCanPauseChange.bind(this);
     this.changeTempVotes = this.changeTempVotes.bind(this);
@@ -228,7 +229,6 @@ export default class Room extends Component {
             </Typography>
 
             <div style={styles.songBox}>
-              {/* PASS isHost + guestCanPause to MusicPlayer */}
               <MusicPlayer
                 title={this.state.song.title}
                 artist={this.state.song.artist}
@@ -337,7 +337,7 @@ export default class Room extends Component {
   }
 }
 
-/** Inline styles, same as before. */
+/** Inline styles */
 const styles = {
   pageWrapper: {
     display: "flex",
