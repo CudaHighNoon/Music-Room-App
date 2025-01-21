@@ -12,19 +12,22 @@ import {
   ListItem,
   ListItemText,
 } from "@material-ui/core";
+
 import MusicPlayer from "./MusicPlayer";
+import WebPlayback from "./WebPlayBack";
+import SpotifyEmbedded from "./SpotifyEmbedded";
 
 export default class Room extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      votesToSkip: 2,         // "real" server value
-      tempVotesToSkip: 2,     // local arrow-button value
-      guestCanPause: false,   // "real" server value
-      tempGuestCanPause: false, // local checkbox value
+      votesToSkip: 2,
+      tempVotesToSkip: 2,
+      guestCanPause: false,
+      tempGuestCanPause: false,
       isHost: false,
       spotifyAuthenticated: false,
-      song: {},
+      song: {},       // data from getCurrentSong() 
       names: [],
       errorMsg: "",
       successMsg: "",
@@ -49,7 +52,7 @@ export default class Room extends Component {
   }
 
   componentDidMount() {
-    // Poll every second
+    // Poll every second for the current song + room details
     this.interval = setInterval(() => {
       this.getCurrentSong();
       this.getRoomDetails();
@@ -60,6 +63,7 @@ export default class Room extends Component {
     clearInterval(this.interval);
   }
 
+  /** Fetch room details (votes, isHost, guestCanPause, etc.) */
   getRoomDetails() {
     fetch(`/api/get-room?code=${this.roomCode}`)
       .then((response) => {
@@ -70,8 +74,6 @@ export default class Room extends Component {
         return response.json();
       })
       .then((data) => {
-        // set "real" server values
-        // only set the "temp" ones on first load
         this.setState((prev) => {
           const newState = {
             votesToSkip: data.votes_to_skip,
@@ -87,12 +89,14 @@ export default class Room extends Component {
           return newState;
         });
 
+        // If user is host, check Spotify
         if (data.is_host) {
           this.authenticateSpotify();
         }
       });
   }
 
+  /** Check if user is authenticated with Spotify; if not, redirect to OAuth */
   authenticateSpotify() {
     fetch("/spotify/is-authenticated")
       .then((response) => response.json())
@@ -108,6 +112,7 @@ export default class Room extends Component {
       });
   }
 
+  /** Fetch current song data from backend (/spotify/current-song) */
   getCurrentSong() {
     fetch("/spotify/current-song")
       .then((response) => {
@@ -117,10 +122,11 @@ export default class Room extends Component {
         return response.json();
       })
       .then((data) => {
-        this.setState({ song: data });
+        this.setState({ song: data }); // e.g. { title, artist, time, duration, is_playing }
       });
   }
 
+  /** Leave room => call backend => navigate home */
   leaveButtonPressed() {
     const requestOptions = {
       method: "POST",
@@ -132,7 +138,7 @@ export default class Room extends Component {
     });
   }
 
-  // Arrow up/down for tempVotesToSkip
+  /** For arrow up/down on VotesToSkip (temp) */
   changeTempVotes(delta) {
     this.setState((prev) => {
       let newVal = prev.tempVotesToSkip + delta;
@@ -141,14 +147,14 @@ export default class Room extends Component {
     });
   }
 
-  // Toggle the "temp" guest can pause checkbox
+  /** Toggle "tempGuestCanPause" checkbox */
   handleTempGuestCanPauseChange() {
     this.setState((prev) => ({
       tempGuestCanPause: !prev.tempGuestCanPause,
     }));
   }
 
-  // PATCH -> unify real and temp on success
+  /** PATCH /api/update-room => unify real & temp on success */
   handleUpdateButtonPressed() {
     this.setState({ errorMsg: "", successMsg: "" });
     const requestOptions = {
@@ -174,17 +180,11 @@ export default class Room extends Component {
     });
   }
 
-  /** Renders the permanent left sidebar with the guest list and an icon above "Room Members" */
+  /** Render the permanent left sidebar with guest list */
   renderSidebar() {
     return (
       <Drawer variant="permanent" anchor="left">
         <div style={styles.drawerContent}>
-          <img
-            src="../../static/images/logo.png"
-            alt="Room Icon"
-            style={styles.sidebarIcon}
-          />
-
           <Typography variant="h6" align="center" style={styles.participantsTitle}>
             Room Members
           </Typography>
@@ -204,140 +204,156 @@ export default class Room extends Component {
 
   render() {
     return (
-      <>
-        <style>
-          {`
-            @keyframes slideInSettings {
-              0% {
-                transform: translateY(40px);
-                opacity: 0;
-              }
-              100% {
-                transform: translateY(0);
-                opacity: 1;
-              }
-            }
-          `}
-        </style>
+      <div style={styles.pageWrapper}>
+        {this.renderSidebar()}
 
-        <div style={styles.pageWrapper}>
-          {this.renderSidebar()}
+        <div style={styles.mainContent}>
+          <Typography style={styles.roomTitle}>
+            Music Room: {this.roomCode}
+          </Typography>
 
-          <div style={styles.mainContent}>
-            <Typography style={styles.roomTitle}>
-              Music Room: {this.roomCode}
-            </Typography>
-
-            <div style={styles.songBox}>
-              <MusicPlayer
-                title={this.state.song.title}
-                artist={this.state.song.artist}
-                is_playing={this.state.song.is_playing}
-                image_url={this.state.song.image_url}
-                time={this.state.song.time}
-                duration={this.state.song.duration}
-                votes={this.state.song.votes}
-                votes_required={this.state.votesToSkip}
-                isHost={this.state.isHost}
-                guestCanPause={this.state.guestCanPause}
-              />
-              <Button
-                variant="contained"
-                style={styles.leaveButton}
-                onClick={this.leaveButtonPressed}
-              >
-                Leave Room
-              </Button>
-            </div>
-
-            {/* The "Settings" box only if isHost */}
-            {this.state.isHost && (
-              <div style={styles.settingsBox}>
-                <Typography style={styles.settingsTitle}>Room Settings</Typography>
-
-                <div style={styles.settingsRow}>
-                  {/* Votes to skip w/ arrow up/down */}
-                  <div style={styles.votesColumn}>
-                    <div style={styles.voteRow}>
-                      <TextField
-                        value={this.state.tempVotesToSkip}
-                        variant="outlined"
-                        style={styles.voteTextField}
-                        inputProps={{
-                          readOnly: true,
-                          style: {
-                            color: "#fff",
-                            textAlign: "center",
-                            fontFamily: "Nunito, sans-serif",
-                            fontSize: "1rem",
-                          },
-                        }}
-                      />
-                      <div style={styles.arrowContainer}>
-                        <Button
-                          style={styles.arrowButton}
-                          onClick={() => this.changeTempVotes(+1)}
-                        >
-                          &#9650;
-                        </Button>
-                        <Button
-                          style={styles.arrowButton}
-                          onClick={() => this.changeTempVotes(-1)}
-                        >
-                          &#9660;
-                        </Button>
-                      </div>
-                    </div>
-                    <FormHelperText style={styles.helperText}>
-                      Votes Required to Skip Song
-                    </FormHelperText>
-                  </div>
-
-                  {/* Guest can pause checkbox (temp) */}
-                  <div style={styles.pauseColumn}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={this.state.tempGuestCanPause}
-                          onChange={this.handleTempGuestCanPauseChange}
-                          style={{ color: "#fff" }}
-                        />
-                      }
-                      label="Guest Can Pause"
-                      style={styles.checkLabel}
-                    />
-                  </div>
-                </div>
-
-                {/* Save Changes button */}
+          <div style={styles.layoutGrid}>
+            {/* LEFT COLUMN => Song Box + Settings */}
+            <div style={styles.leftColumn}>
+              {/* Song Box */}
+              <div style={styles.songBox}>
+                <MusicPlayer
+                  title={this.state.song.title}
+                  artist={this.state.song.artist}
+                  is_playing={this.state.song.is_playing}
+                  image_url={this.state.song.image_url}
+                  time={this.state.song.time}
+                  duration={this.state.song.duration}
+                  votes={this.state.song.votes}
+                  votes_required={this.state.song.votes_required}
+                  isHost={this.state.isHost}
+                  guestCanPause={this.state.guestCanPause}
+                />
                 <Button
                   variant="contained"
-                  style={styles.saveButton}
-                  onClick={this.handleUpdateButtonPressed}
+                  style={styles.leaveButton}
+                  onClick={this.leaveButtonPressed}
                 >
-                  Save Changes
+                  Leave Room
                 </Button>
-
-                {this.state.errorMsg && (
-                  <Typography style={styles.errorText}>
-                    {this.state.errorMsg}
-                  </Typography>
-                )}
-                {this.state.successMsg && (
-                  <Typography style={styles.successText}>
-                    {this.state.successMsg}
-                  </Typography>
-                )}
               </div>
-            )}
+
+              {/* Room Settings (host only) */}
+              {this.state.isHost && (
+                <div style={styles.settingsBox}>
+                  <Typography style={styles.settingsTitle}>Room Settings</Typography>
+
+                  <div style={styles.settingsRow}>
+                    {/* Votes to skip w/ arrow up/down */}
+                    <div style={styles.votesColumn}>
+                      <div style={styles.voteRow}>
+                        <TextField
+                          value={this.state.tempVotesToSkip}
+                          variant="outlined"
+                          style={styles.voteTextField}
+                          inputProps={{
+                            readOnly: true,
+                            style: {
+                              color: "#fff",
+                              textAlign: "center",
+                              fontFamily: "Nunito, sans-serif",
+                              fontSize: "1rem",
+                            },
+                          }}
+                        />
+                        <div style={styles.arrowContainer}>
+                          <Button
+                            style={styles.arrowButton}
+                            onClick={() => this.changeTempVotes(+1)}
+                          >
+                            &#9650;
+                          </Button>
+                          <Button
+                            style={styles.arrowButton}
+                            onClick={() => this.changeTempVotes(-1)}
+                          >
+                            &#9660;
+                          </Button>
+                        </div>
+                      </div>
+                      <FormHelperText style={styles.helperText}>
+                        Votes Required to Skip Song
+                      </FormHelperText>
+                    </div>
+
+                    {/* Guest can pause checkbox */}
+                    <div style={styles.pauseColumn}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={this.state.tempGuestCanPause}
+                            onChange={this.handleTempGuestCanPauseChange}
+                            style={{ color: "#fff" }}
+                          />
+                        }
+                        label="Guest Can Pause"
+                        style={styles.checkLabel}
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    variant="contained"
+                    style={styles.saveButton}
+                    onClick={this.handleUpdateButtonPressed}
+                  >
+                    Save Changes
+                  </Button>
+
+                  {this.state.errorMsg && (
+                    <Typography style={styles.errorText}>
+                      {this.state.errorMsg}
+                    </Typography>
+                  )}
+                  {this.state.successMsg && (
+                    <Typography style={styles.successText}>
+                      {this.state.successMsg}
+                    </Typography>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* RIGHT COLUMN => WebPlayback + Embedded */}
+            <div style={styles.rightColumn}>
+              {this.state.spotifyAuthenticated && (
+                <div style={styles.webPlaybackBox}>
+                  <Typography variant="h6" style={{ marginBottom: "0.5rem" }}>
+                    Spotify Web Playback
+                  </Typography>
+                  {/**
+                   * Pass entire 'song' object so WebPlayback
+                   * can sync position + play/pause
+                   */}
+                  <WebPlayback
+                    currentSong={this.state.song}
+                    isHost={this.state.isHost}
+                  />
+                </div>
+              )}
+
+              {this.state.isHost && (
+                <div style={styles.spotifyEmbeddedBox}>
+                  <Typography variant="h6" style={{ marginBottom: "0.5rem" }}>
+                    Spotify Embedded
+                  </Typography>
+                  <SpotifyEmbedded />
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 }
 
-/** Inline styles */
+// STYLES
 const styles = {
   pageWrapper: {
     display: "flex",
@@ -352,11 +368,6 @@ const styles = {
     backgroundColor: "#2d2d2d",
     padding: "0.5rem",
   },
-  sidebarIcon: {
-    width: "80px",
-    display: "block",
-    margin: "0 auto 1rem auto",
-  },
   participantsTitle: {
     padding: "8px 0",
     color: "#fff",
@@ -370,7 +381,6 @@ const styles = {
   },
   mainContent: {
     marginLeft: 250, // offset for drawer
-    marginRight: 50,
     flexGrow: 1,
     padding: "2rem",
   },
@@ -379,11 +389,27 @@ const styles = {
     fontWeight: "bold",
     marginBottom: "2rem",
   },
+  layoutGrid: {
+    display: "flex",
+    flexDirection: "row",
+    gap: "2rem",
+  },
+  leftColumn: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1rem",
+    flex: "1 1 50%",
+  },
+  rightColumn: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1rem",
+    flex: "1 1 50%",
+  },
   songBox: {
     backgroundColor: "#1f1f1f",
     borderRadius: "8px",
     padding: "1.5rem",
-    marginBottom: "2rem",
   },
   leaveButton: {
     background: "linear-gradient(to right, #3B82F6, #6366F1)",
@@ -468,5 +494,16 @@ const styles = {
   successText: {
     color: "green",
     marginTop: "0.5rem",
+  },
+
+  webPlaybackBox: {
+    backgroundColor: "#1f1f1f",
+    borderRadius: "8px",
+    padding: "1.5rem",
+  },
+  spotifyEmbeddedBox: {
+    backgroundColor: "#1f1f1f",
+    borderRadius: "8px",
+    padding: "1.5rem",
   },
 };
