@@ -6,7 +6,7 @@ import {
   Link,
   Redirect,
 } from "react-router-dom";
-import { Typography, Button } from "@material-ui/core";
+import { Typography, Button, Grid } from "@material-ui/core";
 
 import RoomJoinPage from "./RoomJoinPage";
 import CreateRoomPage from "./CreateRoomPage";
@@ -100,10 +100,10 @@ export default class HomePage extends Component {
           `}
         </style>
 
-        <div style={styles.pageWrapper}>
+        <Grid container style={styles.pageWrapper}>
           {/* NAVBAR */}
-          <div style={styles.navbar}>
-            <div style={styles.navItems}>
+          <Grid item xs={12} style={styles.navbar}>
+            <Grid container alignItems="center" style={styles.navItems}>
               <img
                 src="../../static/images/logo.png"
                 alt="TuneShare Logo"
@@ -118,50 +118,73 @@ export default class HomePage extends Component {
               <Link to="/info" className="nav-link" style={styles.navLink}>
                 About
               </Link>
-            </div>
-          </div>
+            </Grid>
+          </Grid>
 
           {/* HERO SECTION */}
-          <div style={styles.heroContainer}>
+          <Grid
+            container
+            item
+            xs={12}
+            style={styles.heroContainer}
+            className="heroContainer"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             {/* LEFT TEXT SIDE */}
-            <div style={styles.textSide} className="textSide">
+            <Grid
+              item
+              xs={12}
+              md={6}
+              style={styles.textSide}
+              className="textSide"
+            >
               <Typography variant="body2" style={styles.tagline}>
                 Share your Music with Others
               </Typography>
 
-              <Typography variant="h2" style={styles.mainTitle}>
+              <Typography variant="h2" style={styles.mainTitle} className="mainTitle">
                 TuneShare
               </Typography>
 
-              <Typography variant="body1" style={styles.description}>
+              <Typography variant="body1" style={styles.description} className="description">
                 TuneShare enables Spotify Premium users to host a Music Room in which
                 all participants can listen to the same songs together.
               </Typography>
 
               {/* Buttons in a vertical stack */}
-              <div style={styles.buttonColumn}>
-                <Button
-                  variant="contained"
-                  component={Link}
-                  to="/create"
-                  style={styles.createButton}
-                >
-                  Create Room
-                </Button>
-
-                <Button
-                  variant="contained"
-                  component={Link}
-                  to="/join"
-                  style={styles.joinButton}
-                >
-                  Join Room
-                </Button>
-              </div>
-            </div>
+              <Grid container direction="column" spacing={2} style={styles.buttonColumn}>
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    component={Link}
+                    to="/create"
+                    style={styles.createButton}
+                  >
+                    Create Room
+                  </Button>
+                </Grid>
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    component={Link}
+                    to="/join"
+                    style={styles.joinButton}
+                  >
+                    Join Room
+                  </Button>
+                </Grid>
+              </Grid>
+            </Grid>
 
             {/* RIGHT IMAGE SIDE */}
-            <div style={styles.imageSide} className="imageSide">
+            <Grid
+              item
+              xs={12}
+              md={6}
+              style={styles.imageSide}
+              className="imageSide"
+            >
               <img
                 src="../../static/images/circle.png"
                 alt="Colorful Circle"
@@ -171,9 +194,10 @@ export default class HomePage extends Component {
                 src="../../static/images/laptop.png"
                 alt="Laptop"
                 style={styles.laptopImage}
+                className="laptopImage"
               />
-            </div>
-          </div>
+            </Grid>
+          </Grid>
 
           {/* BOTTOM-LEFT CIRCLE */}
           <img
@@ -181,7 +205,7 @@ export default class HomePage extends Component {
             alt="Bottom Circle"
             style={styles.bottomCircle}
           />
-        </div>
+        </Grid>
       </>
     );
   }
@@ -223,7 +247,6 @@ const styles = {
     minHeight: "100vh",
     backgroundColor: "#000",
     color: "#fff",
-    display: "flex",
     flexDirection: "column",
     fontFamily: "Nunito, sans-serif",
     margin: 0,
@@ -266,7 +289,7 @@ const styles = {
     flexWrap: "wrap",
     padding: "3rem 5%",
     boxSizing: "border-box",
-    height:"30%"
+    height: "30%",
   },
   textSide: {
     maxWidth: "550px",
