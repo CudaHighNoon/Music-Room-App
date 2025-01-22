@@ -66,35 +66,40 @@ export default class HomePage extends Component {
               transition: color 0.2s ease-out;
             }
 
-            /* Media query for smaller screens */
+            /* Responsive adjustments for smaller screens */
             @media (max-width: 768px) {
               .textSide, .imageSide {
                 animation: none; /* Disable animations on small screens for performance */
               }
-              .textSide {
-                max-width: 90%;
-                margin-bottom: 2rem;
-              }
               .mainTitle {
-                font-size: 2.5rem;
+                font-size: 2.5rem; /* Smaller title */
+              }
+              .tagline {
+                font-size: 1.1rem; /* Smaller tagline */
               }
               .description {
-                font-size: 1rem;
+                font-size: 1rem; /* Smaller description */
+              }
+              .navBrand {
+                font-size: 1.5rem; /* Smaller brand size */
+              }
+              .navLink {
+                font-size: 0.9rem; /* Smaller nav link size */
+              }
+              /* Adjust buttons */
+              .MuiButton-root {
+                font-size: 0.9rem !important;
+                padding: 0.5rem 1rem !important;
+              }
+              /* Scale down images and adjust positioning */
+              .circleImage {
+                width: 20vw;
+                max-width: 200px;
+                left: -80px;
               }
               .laptopImage {
-                width: 90%;
-              }
-              .circleImage {
-                width: 200px;
-                left: -100px;
-              }
-              .heroContainer {
-                flex-direction: column;
-                align-items: center;
-              }
-              .imageSide {
-                margin-left: 0;
-                margin-bottom: 2rem;
+                width: 50vw;
+                max-width: 500px;
               }
             }
           `}
@@ -109,7 +114,7 @@ export default class HomePage extends Component {
                 alt="TuneShare Logo"
                 style={styles.logoImage}
               />
-              <Typography variant="h5" style={styles.navBrand}>
+              <Typography variant="h5" style={styles.navBrand} className="navBrand">
                 TuneShare
               </Typography>
               <Link to="/" className="nav-link" style={styles.navLink}>
@@ -139,7 +144,7 @@ export default class HomePage extends Component {
               style={styles.textSide}
               className="textSide"
             >
-              <Typography variant="body2" style={styles.tagline}>
+              <Typography variant="body2" style={styles.tagline} className="tagline">
                 Share your Music with Others
               </Typography>
 
@@ -189,6 +194,7 @@ export default class HomePage extends Component {
                 src="../../static/images/circle.png"
                 alt="Colorful Circle"
                 style={styles.circleImage}
+                className="circleImage"
               />
               <img
                 src="../../static/images/laptop.png"
@@ -263,7 +269,7 @@ const styles = {
     flexWrap: "wrap",
   },
   logoImage: {
-    width: "8vw", // relative size
+    width: "8vw",
     maxWidth: "100px",
     marginRight: "0.5rem",
   },
@@ -286,14 +292,14 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    flexWrap: "wrap",
+    flexWrap: "nowrap", // Avoid stacking
     padding: "3rem 5%",
     boxSizing: "border-box",
     height: "30%",
   },
   textSide: {
     maxWidth: "550px",
-    marginBottom: "2rem", // reduced bottom margin for flexibility
+    marginBottom: "2rem",
     animation: "slideInLeft 1s ease-out forwards",
   },
   tagline: {
