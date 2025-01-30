@@ -28,7 +28,11 @@ SECRET_KEY =  os.getenv("key")
 DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app']
-
+USER = os.getenv("user")
+PASSWORD = os.getenv("password")
+HOST = os.getenv("host")
+PORT = os.getenv("port")
+DBNAME = os.getenv("dbname")
 
 # Application definition
 
@@ -81,8 +85,12 @@ WSGI_APPLICATION = 'music_controller.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': DBNAME,  # Replace with your Supabase DB name
+        'USER': USER,     # Replace with your Supabase user
+        'PASSWORD': PASSWORD,  # Replace with your Supabase password
+        'HOST': HOST,     # Replace with your Supabase host
+        'PORT': PORT,                   # Default PostgreSQL port
     }
 }
 
