@@ -21,6 +21,13 @@ load_dotenv()
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
+
+USER = os.getenv("user")
+PASSWORD = os.getenv("password")
+HOST = os.getenv("host")
+PORT = os.getenv("port")
+DBNAME = os.getenv("dbname")
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY =  os.getenv("key")
 
@@ -28,11 +35,7 @@ SECRET_KEY =  os.getenv("key")
 DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app']
-USER = os.getenv("user")
-PASSWORD = os.getenv("password")
-HOST = os.getenv("host")
-PORT = os.getenv("port")
-DBNAME = os.getenv("dbname")
+
 
 # Application definition
 
@@ -83,6 +86,12 @@ WSGI_APPLICATION = 'music_controller.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -93,7 +102,6 @@ DATABASES = {
         'PORT': PORT,                   # Default PostgreSQL port
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
