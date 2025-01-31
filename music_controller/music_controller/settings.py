@@ -32,7 +32,7 @@ DBNAME = os.getenv("dbname")
 SECRET_KEY =  os.getenv("key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app']
 
