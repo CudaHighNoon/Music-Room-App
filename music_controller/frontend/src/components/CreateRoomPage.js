@@ -1,355 +1,184 @@
 import React, { Component } from "react";
 import {
-  Typography,
-  TextField,
-  Button,
-  FormHelperText,
-  Checkbox,
-  FormControlLabel,
-} from "@material-ui/core";
-import { Link } from "react-router-dom";
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  Redirect,
+} from "react-router-dom";
+import { Typography, Button, Grid } from "@material-ui/core";
 
-class CreateRoomPage extends Component {
+import RoomJoinPage from "./RoomJoinPage";
+import CreateRoomPage from "./CreateRoomPage";
+import Room from "./Room";
+import Info from "./Info";
+
+export default class HomePage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      votesToSkip: 2,
-      userName: "Alien",
-      error: false,
-      guestCanPause: true, // reintroduce this from original code
+      roomCode: null,
     };
-
-    this.handleTextFieldChange = this.handleTextFieldChange.bind(this);
-    this.handleRoomButtonPressed = this.handleRoomButtonPressed.bind(this);
-    this.changeVotes = this.changeVotes.bind(this);
-    this.handleGuestCanPauseChange = this.handleGuestCanPauseChange.bind(this);
+    this.clearRoomCode = this.clearRoomCode.bind(this);
   }
 
-  /** Increase/decrease votes, but don’t go below 1 **/
-  changeVotes(delta) {
-    this.setState((prev) => {
-      const newVal = prev.votesToSkip + delta;
-      return { votesToSkip: newVal < 1 ? 1 : newVal };
-    });
-  }
-
-  /** Toggle guestCanPause checkbox **/
-  handleGuestCanPauseChange() {
-    this.setState((prev) => ({
-      guestCanPause: !prev.guestCanPause,
-    }));
-  }
-
-  /** Handle text input for user name **/
-  handleTextFieldChange(e) {
-    this.setState({ userName: e.target.value });
-  }
-
-  /** POST request to create new room + add user, then navigate to the room **/
-  handleRoomButtonPressed() {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        votes_to_skip: this.state.votesToSkip,
-        guest_can_pause: this.state.guestCanPause, // sending to backend
-      }),
-    };
-    fetch("/api/create-room", requestOptions)
+  async componentDidMount() {
+    fetch("/api/user-in-room")
       .then((response) => response.json())
       .then((data) => {
-        if (data.code) {
-          // If room created, add user
-          const requestOptions2 = {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: this.state.userName,
-            }),
-          };
-          fetch("/api/add-user", requestOptions2).then((response) => {
-            if (response.ok) {
-              this.props.history.push("/room/" + data.code);
-            } else {
-              this.setState({ error: "Name is Taken" });
-            }
-          });
-        } else {
-          this.setState({ error: "Error creating room" });
-        }
+        this.setState({ roomCode: data.code });
       });
   }
 
-  render() {
+  clearRoomCode() {
+    this.setState({ roomCode: null });
+  }
+
+  renderHomePage() {
     return (
       <>
         <style>
           {`
-            @keyframes slideInBottom {
-              0% {
-                transform: translateY(50px);
-                opacity: 0;
-              }
-              100% {
-                transform: translateY(0);
-                opacity: 1;
-              }
-            }
             @keyframes slideInLeft {
-              0% {
-                transform: translateX(-80px);
-                opacity: 0;
-              }
-              100% {
-                transform: translateX(0);
-                opacity: 1;
-              }
+              0% { transform: translateX(-50px); opacity: 0; }
+              100% { transform: translateX(0); opacity: 1; }
             }
             @keyframes slideInRight {
-              0% {
-                transform: translateX(80px);
-                opacity: 0;
-              }
-              100% {
-                transform: translateX(0);
-                opacity: 1;
-              }
+              0% { transform: translateX(50px); opacity: 0; }
+              100% { transform: translateX(0); opacity: 1; }
             }
           `}
         </style>
 
-        <div style={styles.pageWrapper}>
-          {/* Circles sliding in from sides */}
-          <img
-            src="../../static/images/circle.png"
-            alt="Circle Left"
-            style={styles.circleLeft}
-          />
-          <img
-            src="../../static/images/circle.png"
-            alt="Circle Right"
-            style={styles.circleRight}
-          />
-          <img
-            src="../../static/images/circle.png"
-            alt="Circle BottomLeft"
-            style={styles.circleBottomLeft}
-          />
-
-          {/* Dark box in center, slides in from bottom */}
-          <div style={styles.createBox}>
-            <Typography variant="h3" style={styles.title}>
-              Create Room
-            </Typography>
-
-            {/* Votes to Skip (with custom arrow buttons) */}
-            <div style={styles.voteRow}>
-              <TextField
-                value={this.state.votesToSkip}
-                variant="outlined"
-                style={styles.voteTextField}
-                inputProps={{
-                  readOnly: true,
-                  style: {
-                    color: "#fff",
-                    textAlign: "center",
-                    fontFamily: "Nunito, sans-serif",
-                    fontSize: "1rem",
-                  },
-                }}
+        <Grid container className="relative w-full min-h-screen bg-black text-white flex-col font-nunito m-0 p-0 box-border">
+          {/* NAVBAR */}
+          <Grid item xs={12} className="flex p-4 md:p-[1rem_2%]">
+            <Grid container alignItems="center" className="flex flex-wrap items-center">
+              <img
+                src="../../static/images/logo.png"
+                alt="TuneShare Logo"
+                className="w-[8vw] max-w-[100px] mr-2"
               />
-              <div style={styles.arrowContainer}>
-                {/* Up Arrow */}
-                <Button
-                  style={styles.arrowButton}
-                  onClick={() => this.changeVotes(+1)}
-                >
-                  &#9650;
-                </Button>
-                {/* Down Arrow */}
-                <Button
-                  style={styles.arrowButton}
-                  onClick={() => this.changeVotes(-1)}
-                >
-                  &#9660;
-                </Button>
-              </div>
-            </div>
+              <Typography variant="h5" className="font-bold text-white mr-8 text-[1.8rem] no-underline">
+                TuneShare
+              </Typography>
+              <Link to="/" className="text-white no-underline text-base font-semibold ml-6 hover:text-gray-300 transition-colors">
+                Home
+              </Link>
+              <Link to="/info" className="text-white no-underline text-base font-semibold ml-6 hover:text-gray-300 transition-colors">
+                About
+              </Link>
+            </Grid>
+          </Grid>
 
-            <FormHelperText style={styles.helperText}>
-              Votes Required to Skip Song
-            </FormHelperText>
+          {/* HERO SECTION */}
+          <Grid
+            container
+            item
+            xs={12}
+            className="flex-grow flex items-center justify-between flex-nowrap p-[3rem_5%] box-border h-[30%]"
+          >
+            {/* LEFT TEXT SIDE */}
+            <Grid
+              item
+              xs={12}
+              md={6}
+              className="max-w-[550px] mb-8 animate-slideInLeft"
+            >
+              <Typography variant="body2" className="text-[1.4rem] text-gray-400 mb-2">
+                Share your Music with Others
+              </Typography>
 
-            {/* Guest Can Pause checkbox */}
-            <div style={styles.checkBoxRow}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={this.state.guestCanPause}
-                    onChange={this.handleGuestCanPauseChange}
-                    style={{ color: "#fff" }}
-                  />
-                }
-                label="Guest Can Pause"
-                style={{ color: "#fff", fontFamily: "Nunito, sans-serif" }}
+              <Typography variant="h2" className="font-bold mb-6 text-[3.4rem]">
+                TuneShare
+              </Typography>
+
+              <Typography variant="body1" className="mb-12 text-[1.4rem] leading-relaxed">
+                TuneShare enables Spotify Premium users to host a Music Room in which
+                all participants can listen to the same songs together.
+              </Typography>
+
+              <Grid container direction="column" spacing={2} className="flex flex-col gap-6">
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    component={Link}
+                    to="/create"
+                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold rounded py-3 px-6 text-[1.1rem] normal-case shadow-none hover:shadow-md transition-all"
+                  >
+                    Create Room
+                  </Button>
+                </Grid>
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    component={Link}
+                    to="/join"
+                    className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold rounded py-3 px-6 text-[1.1rem] normal-case shadow-none hover:shadow-md transition-all"
+                  >
+                    Join Room
+                  </Button>
+                </Grid>
+              </Grid>
+            </Grid>
+
+            {/* RIGHT IMAGE SIDE */}
+            <Grid
+              item
+              xs={12}
+              md={6}
+              className="relative min-w-[300px] mb-8 text-center shrink-0 animate-slideInRight"
+            >
+              <img
+                src="../../static/images/circle.png"
+                alt="Colorful Circle"
+                className="absolute w-[25vw] max-w-[450px] left-[-140px] top-0 z-10"
               />
-            </div>
+              <img
+                src="../../static/images/laptop.png"
+                alt="Laptop"
+                className="relative z-20 w-[60vw] max-w-[700px]"
+              />
+            </Grid>
+          </Grid>
 
-            {/* Name field */}
-            <TextField
-              label="Enter a Name"
-              placeholder="Enter a Name"
-              value={this.state.userName}
-              variant="outlined"
-              onChange={this.handleTextFieldChange}
-              style={styles.textField}
-              InputLabelProps={{ style: { color: "#fff" } }}
-              InputProps={{
-                style: {
-                  color: "#fff",
-                  fontFamily: "Nunito, sans-serif",
-                },
-              }}
-              error={Boolean(this.state.error)}
-            />
-
-            {/* CREATE ROOM button */}
-            <Button
-              variant="contained"
-              onClick={this.handleRoomButtonPressed}
-              style={styles.createRoomButton}
-            >
-              Create Room
-            </Button>
-
-            {/* BACK button */}
-            <Button
-              variant="contained"
-              to="/"
-              component={Link}
-              style={styles.backButton}
-            >
-              Back
-            </Button>
-          </div>
-        </div>
+          {/* BOTTOM-LEFT CIRCLE */}
+          <img
+            src="../../static/images/circle.png"
+            alt="Bottom Circle"
+            className="absolute left-[-100px] bottom-[-50px] w-[300px] z-0 opacity-90 hidden md:block"
+          />
+        </Grid>
       </>
     );
   }
+
+  render() {
+    return (
+      <Router>
+        <Switch>
+          <Route
+            exact
+            path="/"
+            render={() =>
+              this.state.roomCode ? (
+                <Redirect to={`/room/${this.state.roomCode}`} />
+              ) : (
+                this.renderHomePage()
+              )
+            }
+          />
+          <Route path="/join" component={RoomJoinPage} />
+          <Route path="/info" component={Info} />
+          <Route path="/create" component={CreateRoomPage} />
+          <Route
+            path="/room/:roomCode"
+            render={(props) => (
+              <Room {...props} leaveRoomCallback={this.clearRoomCode} />
+            )}
+          />
+        </Switch>
+      </Router>
+    );
+  }
 }
-
-export default CreateRoomPage;
-
-/** 
- * Inline styles. 
- * You can adjust colors, positions, spacing, etc. 
- */
-const styles = {
-  pageWrapper: {
-    position: "relative",
-    width: "100%",
-    minHeight: "100vh",
-    backgroundColor: "#000",
-    overflow: "hidden",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontFamily: "Nunito, sans-serif",
-    color: "#fff",
-  },
-  circleLeft: {
-    position: "absolute",
-    top: "10%",
-    left: "-150px",
-    width: "400px",
-    animation: "slideInLeft 1s ease-out forwards",
-    opacity: 0,
-  },
-  circleRight: {
-    position: "absolute",
-    top: "20%",
-    right: "-200px",
-    width: "500px",
-    animation: "slideInRight 1.2s ease-out forwards",
-    opacity: 0,
-  },
-  circleBottomLeft: {
-    position: "absolute",
-    bottom: "-100px",
-    left: "-100px",
-    width: "300px",
-    animation: "slideInLeft 1.4s ease-out forwards",
-    opacity: 0,
-  },
-  createBox: {
-    backgroundColor: "rgba(25, 25, 25, 0.95)",
-    borderRadius: "6px",
-    padding: "2rem 3rem",
-    maxWidth: "400px",
-    width: "90%",
-    boxSizing: "border-box",
-    textAlign: "center",
-    animation: "slideInBottom 0.8s ease-out forwards",
-    opacity: 0,
-  },
-  title: {
-    marginBottom: "1.5rem",
-    fontWeight: "bold",
-    fontFamily: "Nunito, sans-serif",
-  },
-  voteRow: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: "0.5rem",
-  },
-  voteTextField: {
-    width: "60px",
-    backgroundColor: "#111",
-    borderRadius: "4px",
-  },
-  arrowContainer: {
-    display: "flex",
-    flexDirection: "column",
-    marginLeft: "0.5rem",
-  },
-  arrowButton: {
-    backgroundColor: "#111",
-    color: "#fff",
-    minWidth: "40px",
-    marginBottom: "4px",
-    fontSize: "1.2rem",
-    textTransform: "none",
-  },
-  helperText: {
-    color: "#fff",
-    marginBottom: "1rem",
-    fontFamily: "Nunito, sans-serif",
-  },
-  checkBoxRow: {
-    marginBottom: "1rem",
-  },
-  textField: {
-    marginBottom: "1rem",
-    width: "100%",
-    backgroundColor: "#111",
-    borderRadius: "4px",
-  },
-  createRoomButton: {
-    background: "linear-gradient(to right, #3B82F6, #6366F1)",
-    color: "#fff",
-    fontWeight: "bold",
-    textTransform: "none",
-    width: "100%",
-    marginBottom: "1rem",
-    fontFamily: "Nunito, sans-serif",
-  },
-  backButton: {
-    background: "linear-gradient(to right, #ec4899, #f43f5e)",
-    color: "#fff",
-    fontWeight: "bold",
-    textTransform: "none",
-    width: "100%",
-    fontFamily: "Nunito, sans-serif",
-  },
-};

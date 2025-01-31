@@ -6,18 +6,21 @@ import {
   Link,
   Redirect,
 } from "react-router-dom";
-import { Typography, Button, Grid } from "@material-ui/core";
+import { Typography, Button, Grid, Fade, Grow } from "@material-ui/core";
 
 import RoomJoinPage from "./RoomJoinPage";
 import CreateRoomPage from "./CreateRoomPage";
 import Room from "./Room";
 import Info from "./Info";
+import Navbar from "./Navbar";
+
 
 export default class HomePage extends Component {
   constructor(props) {
     super(props);
     this.state = {
       roomCode: null,
+      checked: false, // State to control animations
     };
     this.clearRoomCode = this.clearRoomCode.bind(this);
   }
@@ -28,6 +31,9 @@ export default class HomePage extends Component {
       .then((data) => {
         this.setState({ roomCode: data.code });
       });
+
+    // Trigger animations after component mounts
+    this.setState({ checked: true });
   }
 
   clearRoomCode() {
@@ -37,180 +43,91 @@ export default class HomePage extends Component {
   renderHomePage() {
     return (
       <>
-        <style>
-          {`
-            @keyframes slideInLeft {
-              0% {
-                transform: translateX(-50px);
-                opacity: 0;
-              }
-              100% {
-                transform: translateX(0);
-                opacity: 1;
-              }
-            }
-
-            @keyframes slideInRight {
-              0% {
-                transform: translateX(50px);
-                opacity: 0;
-              }
-              100% {
-                transform: translateX(0);
-                opacity: 1;
-              }
-            }
-
-            .nav-link:hover {
-              color: #bbb;
-              transition: color 0.2s ease-out;
-            }
-
-            /* Responsive adjustments for smaller screens */
-            @media (max-width: 768px) {
-              .textSide, .imageSide {
-                animation: none; /* Disable animations on small screens for performance */
-              }
-              .mainTitle {
-                font-size: 2.5rem; /* Smaller title */
-              }
-              .tagline {
-                font-size: 1.1rem; /* Smaller tagline */
-              }
-              .description {
-                font-size: 1rem; /* Smaller description */
-              }
-              .navBrand {
-                font-size: 1.5rem; /* Smaller brand size */
-              }
-              .navLink {
-                font-size: 0.9rem; /* Smaller nav link size */
-              }
-              /* Adjust buttons */
-              .MuiButton-root {
-                font-size: 0.9rem !important;
-                padding: 0.5rem 1rem !important;
-              }
-              /* Scale down images and adjust positioning */
-              .circleImage {
-                width: 20vw;
-                max-width: 200px;
-                left: -80px;
-              }
-              .laptopImage {
-                width: 50vw;
-                max-width: 500px;
-              }
-            }
-          `}
-        </style>
-
         <Grid container style={styles.pageWrapper}>
           {/* NAVBAR */}
-          <Grid item xs={12} style={styles.navbar}>
-            <Grid container alignItems="center" style={styles.navItems}>
-              <img
-                src="../../static/images/logo.png"
-                alt="TuneShare Logo"
-                style={styles.logoImage}
-              />
-              <Typography variant="h5" style={styles.navBrand} className="navBrand">
-                TuneShare
-              </Typography>
-              <Link to="/" className="nav-link" style={styles.navLink}>
-                Home
-              </Link>
-              <Link to="/info" className="nav-link" style={styles.navLink}>
-                About
-              </Link>
-            </Grid>
-          </Grid>
-
+          <Navbar />
+          
           {/* HERO SECTION */}
-          <Grid
-            container
-            item
-            xs={12}
-            style={styles.heroContainer}
-            className="heroContainer"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            {/* LEFT TEXT SIDE */}
+          <Fade in={this.state.checked} timeout={1000}>
             <Grid
+              container
               item
               xs={12}
-              md={6}
-              style={styles.textSide}
-              className="textSide"
+              style={styles.heroContainer}
+              justifyContent="space-between"
+              alignItems="center"
             >
-              <Typography variant="body2" style={styles.tagline} className="tagline">
-                Share your Music with Others
-              </Typography>
+              {/* TEXT SIDE */}
+              <Grow in={this.state.checked} timeout={1500}>
+                <Grid item xs={12} md={6} style={styles.textSide}>
+                  <Typography variant="body2" style={styles.tagline}>
+                    Share your Music with Others
+                  </Typography>
 
-              <Typography variant="h2" style={styles.mainTitle} className="mainTitle">
-                TuneShare
-              </Typography>
+                  <Typography variant="h2" style={styles.mainTitle}>
+                    TuneShare
+                  </Typography>
 
-              <Typography variant="body1" style={styles.description} className="description">
-                TuneShare enables Spotify Premium users to host a Music Room in which
-                all participants can listen to the same songs together.
-              </Typography>
+                  <Typography variant="body1" style={styles.description}>
+                    TuneShare enables Spotify Premium users to host a Music Room in which
+                    all participants can listen to the same songs together.
+                  </Typography>
 
-              {/* Buttons in a vertical stack */}
-              <Grid container direction="column" spacing={2} style={styles.buttonColumn}>
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    component={Link}
-                    to="/create"
-                    style={styles.createButton}
-                  >
-                    Create Room
-                  </Button>
+                  <Grid container direction="column" spacing={2} style={styles.buttonColumn}>
+                    <Grid item>
+                      <Button
+                        variant="contained"
+                        component={Link}
+                        to="/create"
+                        style={styles.createButton}
+                      >
+                        Create Room
+                      </Button>
+                    </Grid>
+                    <Grid item>
+                      <Button
+                        variant="contained"
+                        component={Link}
+                        to="/join"
+                        style={styles.joinButton}
+                      >
+                        Join Room
+                      </Button>
+                    </Grid>
+                  </Grid>
                 </Grid>
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    component={Link}
-                    to="/join"
-                    style={styles.joinButton}
-                  >
-                    Join Room
-                  </Button>
+              </Grow>
+
+              {/* IMAGE SIDE */}
+              <Grow in={this.state.checked} timeout={2000}>
+                <Grid item xs={12} md={6} style={styles.imageSide}>
+                  <Fade in={this.state.checked} timeout={2500}>
+                    <img
+                      src="../../static/images/circle.png"
+                      alt="Colorful Circle"
+                      style={styles.circleImage}
+                    />
+                  </Fade>
+                  <Fade in={this.state.checked} timeout={3000}>
+                    <img
+                      src="../../static/images/laptop.png"
+                      alt="Laptop"
+                      style={styles.laptopImage}
+                    />
+                  </Fade>
                 </Grid>
-              </Grid>
+              </Grow>
             </Grid>
+          </Fade>
 
-            {/* RIGHT IMAGE SIDE */}
-            <Grid
-              item
-              xs={12}
-              md={6}
-              style={styles.imageSide}
-              className="imageSide"
-            >
-              <img
-                src="../../static/images/circle.png"
-                alt="Colorful Circle"
-                style={styles.circleImage}
-                className="circleImage"
-              />
-              <img
-                src="../../static/images/laptop.png"
-                alt="Laptop"
-                style={styles.laptopImage}
-                className="laptopImage"
-              />
-            </Grid>
-          </Grid>
-
-          {/* BOTTOM-LEFT CIRCLE */}
-          <img
-            src="../../static/images/circle.png"
-            alt="Bottom Circle"
-            style={styles.bottomCircle}
-          />
+          {/* BOTTOM CIRCLE */}
+          <Fade in={this.state.checked} timeout={3500}>
+            <img
+              src="../../static/images/circle.png"
+              alt="Bottom Circle"
+              style={styles.bottomCircle}
+            />
+          </Fade>
         </Grid>
       </>
     );
@@ -254,53 +171,51 @@ const styles = {
     backgroundColor: "#000",
     color: "#fff",
     flexDirection: "column",
-    fontFamily: "Nunito, sans-serif",
-    margin: 0,
-    padding: 0,
-    boxSizing: "border-box",
+    overflowX: "hidden",
+    paddingBottom: 50,
+    fontFamily: "Nunito, sans-serif", // Original font family
   },
   navbar: {
-    display: "flex",
-    padding: "1rem 2%",
+    padding: "1rem 5%",
+    position: "relative",
+    zIndex: 2,
   },
   navItems: {
     display: "flex",
     alignItems: "center",
     flexWrap: "wrap",
+    gap: "1rem",
   },
   logoImage: {
-    width: "8vw",
-    maxWidth: "100px",
+    width: "60px",
+    height: "60px",
     marginRight: "0.5rem",
   },
   navBrand: {
     fontWeight: "bold",
-    color: "#fff",
-    marginRight: "2rem",
+    marginRight: "1rem",
     fontSize: "1.8rem",
+    fontFamily: "Nunito, sans-serif", // Explicit font for brand
     textDecoration: "none",
   },
   navLink: {
-    marginLeft: "1.5rem",
     color: "#fff",
     textDecoration: "none",
     fontSize: "1rem",
+    whiteSpace: "nowrap",
+    fontFamily: "Nunito, sans-serif", // Explicit font for links
     fontWeight: 600,
   },
   heroContainer: {
     flexGrow: 1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexWrap: "nowrap", // Avoid stacking
     padding: "3rem 5%",
-    boxSizing: "border-box",
-    height: "30%",
+    position: "relative",
+    zIndex: 1,
   },
   textSide: {
+    position: "relative",
+    zIndex: 2,
     maxWidth: "550px",
-    marginBottom: "2rem",
-    animation: "slideInLeft 1s ease-out forwards",
   },
   tagline: {
     fontSize: "1.4rem",
@@ -318,9 +233,7 @@ const styles = {
     lineHeight: 1.6,
   },
   buttonColumn: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1.5rem",
+    maxWidth: "400px",
   },
   createButton: {
     background: "linear-gradient(to right, #3B82F6, #6366F1)",
@@ -329,9 +242,8 @@ const styles = {
     fontWeight: "bold",
     fontSize: "1.1rem",
     padding: "0.75rem 1.5rem",
-    textTransform: "none",
-    boxShadow: "none",
     width: "100%",
+    maxWidth: "300px",
   },
   joinButton: {
     background: "linear-gradient(to right, #ec4899, #f43f5e)",
@@ -340,38 +252,91 @@ const styles = {
     fontWeight: "bold",
     fontSize: "1.1rem",
     padding: "0.75rem 1.5rem",
-    textTransform: "none",
-    boxShadow: "none",
     width: "100%",
+    maxWidth: "300px",
   },
   imageSide: {
     position: "relative",
-    minWidth: "300px",
-    marginBottom: "2rem",
-    textAlign: "center",
-    flexShrink: 0,
-    animation: "slideInRight 1s ease-out forwards",
+    height: "400px",
+    marginTop: "2rem",
+    zIndex: 0,
   },
   circleImage: {
     position: "absolute",
-    width: "25vw",
-    maxWidth: "450px",
-    left: "-140px",
-    top: "0px",
-    zIndex: 1,
+    width: "120%",
+    maxWidth: "600px",
+    left: "-30%",
+    top: "0",
+    opacity: 0.8,
   },
   laptopImage: {
-    position: "relative",
-    zIndex: 2,
-    width: "60vw",
-    maxWidth: "700px",
+    position: "absolute",
+    width: "100%",
+    maxWidth: "600px",
+    left: "50%",
+    top: "50%",
+    transform: "translate(-50%, -50%)",
   },
   bottomCircle: {
     position: "absolute",
     left: "-100px",
     bottom: "-50px",
     width: "300px",
-    zIndex: 0,
-    opacity: 0.9,
+    opacity: 0.7,
+    display: "none",
   },
 };
+
+const mediaQueries = `
+  @media (max-width: 700px) {
+    .navBrand {
+      font-size: 1.5rem !important;
+    }
+    .navLink {
+      font-size: 0.9rem !important;
+    }
+    .heroContainer {
+      padding: 2rem 5% !important;
+    }
+    .mainTitle {
+      font-size: 2.5rem !important;
+    }
+    .tagline {
+      font-size: 1.2rem !important;
+    }
+    .description {
+      font-size: 1.1rem !important;
+    }
+    .buttonColumn {
+      max-width: 100% !important;
+    }
+    .imageSide {
+      height: 300px !important;
+    }
+    .circleImage {
+      left: -50% !important;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .createButton, .joinButton {
+      font-size: 1.3rem !important;
+      padding: 1rem 2rem !important;
+      max-width: 350px !important;
+    }
+    .mainTitle {
+      font-size: 4rem !important;
+    }
+    .navBrand {
+      font-size: 2rem !important;
+    }
+    .navLink {
+      font-size: 1.1rem !important;
+    }
+  }
+`;
+
+// Inject media queries into the document head
+const styleElement = document.createElement('style');
+styleElement.appendChild(document.createTextNode(mediaQueries));
+document.head.appendChild(styleElement);
